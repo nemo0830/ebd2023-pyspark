@@ -1,4 +1,5 @@
 from pyspark.sql import SparkSession
+from pyspark.sql.functions import col, sum
 
 spark = SparkSession.builder\
     .appName("gcloud_sql")\
@@ -22,7 +23,14 @@ connectionProperties = {
 }
 
 # Read data from a PostgreSQL table
-df = spark.read.jdbc(url=jdbcUrl, table="student_assessment", properties=connectionProperties)
+df_a = spark.read.jdbc(url=jdbcUrl, table="assessment", properties=connectionProperties)
+df_a = df_a.withColumn('weight', df_a['weight']/100)
+df_sa = spark.read.jdbc(url=jdbcUrl, table="student_assessment", properties=connectionProperties)
 
-# Display the data
-df.show()
+df_join = df_sa.join(df_a, on="id_assessment", how="left")
+
+grouped_data = df_join.groupBy(["id_student", "code_presentation"]).agg(
+    sum(col("score") * col("weight")).alias('weighted_score')
+)
+
+grouped_data.orderBy(["id_student", "code_presentation"]).where(col('id_student') == '100064').show()
