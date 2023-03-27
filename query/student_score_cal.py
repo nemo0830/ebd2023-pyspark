@@ -22,7 +22,7 @@ connectionProperties = {
 }
 
 # Read data from a PostgreSQL table
-df = spark.read.jdbc(url=jdbcUrl, table="assessment", properties=connectionProperties)
+df = spark.read.jdbc(url=jdbcUrl, table="student_assessment", properties=connectionProperties)
 
 # Display the data
 df.show()
