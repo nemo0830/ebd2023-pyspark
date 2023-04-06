@@ -2,6 +2,12 @@ from google.cloud.sql.connector import Connector
 from sqlalchemy import create_engine, text
 import pandas as pd
 import matplotlib.pyplot as plt
+import dash
+from dash import html
+from dash import dcc
+from dash.dash_table import DataTable
+import dash_bootstrap_components as dbc
+import plotly.express as px
 
 db_user = "postgres"
 db_pass = "ebd2023"
@@ -37,19 +43,60 @@ engine = create_engine(
 )
 
 with engine.begin() as conn:
-    #query = text("""SELECT module_presentation_length, code_presentation FROM courses""")
 
-    query = text("""SELECT sa.date_submitted, sa.score
+    query = text("""SELECT sa.id_student, sa.score,sum(sv.sum_click) as totalClick
     FROM student_assessment sa join studentvle sv
     on sa.id_student = sv.id_student
-    where (id_student, date_submitted) in
+    where (sa.id_student, sa.date_submitted) in
     (select id_student, max(date_submitted)
-    from student_assessment group by id_student)""")
+    from student_assessment group by id_student)
+    and sa.date_submitted = sv.date
+	group by sa.id_student, sa.score""")
 
-    df = pd.read_sql_query(query, conn)
+    query2 = text("""SELECT sa.id_student, count(v.activity_type) as login_count, v.activity_type
+    FROM student_assessment sa 
+	join studentvle sv
+    on sa.id_student = sv.id_student
+	join vle v
+	on v.id_site = sv.id_site
+    where (sa.id_student, sa.date_submitted) in
+    (select id_student, max(date_submitted)
+    from student_assessment group by id_student)
+    and sa.date_submitted = sv.date
+	group by sa.id_student, v.activity_type""")
 
-    print(df)
+    df = pd.read_sql_query(query,conn)
+    df2 = pd.read_sql_query(query2, conn)
 
-    #df.plot.scatter(x='id_student', y='sum_click', s=100);
+    # line creates the dashboard.
+    app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
+    title_font_size = 15
+    fig = px.scatter(df, x="score", y="totalclick",
+                     size="totalclick", color="totalclick", hover_name="totalclick",
+                     log_x=True, size_max=60,
+                     title="Relation of Total Clicks to Scores obtained by Students in 1st Assessment Attempt").update_layout(
+        title_font_size=title_font_size)
 
-#plt.show()
+    fig2 = px.bar(df2, x='activity_type', y='login_count',
+                  hover_data=['id_student', 'login_count'], color='activity_type',
+                  labels={'pop': ''}, height=450,
+                  title="Relation of Login Counts to Activity Types in 1st Assessment Attempt").update_layout(
+        title_font_size=title_font_size)
+    # line defines the dashboard components and its layout with the help of HTML tags.
+    # This is where you will add the components of the dashboard.
+    app.layout = html.Div(
+        [
+            html.H1("Dashboard on Student Engagement in an e-Learning System"),
+            html.H1("& Their Impact on Student Course Assessment Scores"),
+            html.Ul(
+                [
+                    dcc.Graph(id='url-1st-attempt', figure=fig2),
+                    dcc.Graph(id='score-1st-attempt', figure=fig)
+
+                ]
+            ),
+        ]
+    )
+
+    if __name__ == "__main__":
+        app.run_server(debug=True)
