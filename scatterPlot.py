@@ -10,7 +10,7 @@ import dash_bootstrap_components as dbc
 import plotly.express as px
 
 db_user = "postgres"
-db_pass = "ebd2023"
+db_pass = "<replace_actual_password_here>"
 db_name = "mockdb"
 project_id = "ebd2023"
 region = "asia-southeast1"
