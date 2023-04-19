@@ -24,7 +24,6 @@ Callbacks.register_callbacks(app, student_score_data)
 app.layout = html.Div(
     [
         html.H1("Dashboard on Student Engagement in an E-Learning System"),
-        html.H2("Total Students: " + str(student_score_data.shape[0])),
         html.Div([
             html.Label('Top Or Bottom'),
             dcc.Dropdown(
@@ -35,12 +34,21 @@ app.layout = html.Div(
             ),
         ]),
         html.Div([
+            html.Label('Semester'),
+            dcc.Dropdown(
+                id='semester',
+                options=semester_options,
+                value='2013J',
+                style={'width': '50%'}
+            ),
+        ]),
+        html.Div([
             html.Label('Query num students:'),
             dcc.Input(id='input-param', type='number', value=0),
             html.Button('Submit', id='submit-button', n_clicks=0)
         ]),
         html.Div([
-            dcc.Graph(id='output-plot')
+            dcc.Graph(id='student-score-plot')
         ])
     ]
 )

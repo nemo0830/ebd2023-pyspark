@@ -13,10 +13,11 @@ class StudentScoreTransformer:
 
         df_join = df_sa.join(df_a, on="id_assessment", how="left")
 
-        processed_data = df_join.groupBy(["id_student", "code_presentation"]) \
+        processed_data = df_join\
+            .groupBy(["id_student", "code_presentation"]) \
             .agg(sum(col("score") * col("weight")).alias('weighted_score')) \
             .dropna() \
-            .select(col("id_student").cast("varchar(20)"), col("weighted_score")) \
+            .select(col("id_student").cast("varchar(20)"), col("weighted_score"), col("code_presentation")) \
             .sort(desc("weighted_score")) \
             .toPandas()
 
