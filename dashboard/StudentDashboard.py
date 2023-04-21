@@ -2,6 +2,7 @@ from pyspark.sql import SparkSession
 from api import Callbacks
 from config.AppProperties import *
 from config.SparkConn import jdbcUrl, connectionProperties
+from model.DecisionTreeTrainer import train_data
 from transformer import StudentScoreTransformer, StudentInfoMLTransformer
 import dash
 from dash import html
@@ -28,13 +29,13 @@ non_indexing_feature_cols = ["total_click"]
 
 model_dic = {}
 for code in code_modules:
-    model = (training_data, code, indexing_feature_cols, non_indexing_feature_cols, indexer_str)
+    model = train_data(training_data, code, indexing_feature_cols, non_indexing_feature_cols, indexer_str)
     model_dic[code] = model
     print("Loaded ML model for " + code + " : " + model.__str__())
 
 # Init App
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
-Callbacks.register_callbacks(app, student_score_data)
+Callbacks.register_callbacks(app, student_score_data, model_dic, final_result_options)
 app.layout = html.Div(
     [
         html.H1("Dashboard on Student Engagement in an E-Learning System"),

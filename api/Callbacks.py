@@ -1,8 +1,12 @@
 from dash.dependencies import Input, Output, State
+from pyspark.sql import SparkSession
+from pyspark.ml.feature import VectorAssembler
+from pyspark.sql.functions import col
 from config.AppProperties import *
 import plotly.express as px
+import os
 
-def register_callbacks(app, student_score_data):
+def register_callbacks(app, student_score_data, model_dic, final_result_options):
 
     @app.callback(
         Output('student-score-plot', 'figure'),
@@ -33,5 +37,17 @@ def register_callbacks(app, student_score_data):
                   Input('imd_band', 'value'),
                   Input('age_band', 'value'),
                   Input('disability', 'value'),)
-    def update_prediction(n_clicks, course_to_predict, gender, highest_education, imd_band, age_band, disability):
-        return str(course_to_predict) + str(gender) + str(highest_education) + str(imd_band) + str(age_band) + str(disability)
+    def update_prediction(n_clicks, course_to_predict, gender, highest_education, imd_band, age_band, disability, ml_map=model_dic, result_map=final_result_options):
+        os.environ["PYSPARK_PYTHON"] = "C:Users\siyuan\AppData\Local\Programs\Python\Python38\python.exe"
+        if n_clicks > 0:
+            model = ml_map[course_to_predict]
+            feature_cols = ["gender_idx", "highest_education_idx", "imd_band_idx", "age_band_idx", "disability_idx", "total_click"]
+            spark_local = SparkSession.builder.appName("example").getOrCreate()
+            new_data = spark_local.createDataFrame([(gender, highest_education, imd_band, age_band, disability, 10.0)], feature_cols)
+            assembler = VectorAssembler(inputCols=feature_cols, outputCol="features")
+            new_data = assembler.transform(new_data)
+
+            # Make predictions with the model
+            predictions = model.transform(new_data)
+
+            return result_map[int(predictions.select(col("prediction")).collect()[0]["prediction"])]

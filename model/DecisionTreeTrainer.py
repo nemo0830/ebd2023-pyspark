@@ -3,7 +3,7 @@ from pyspark.ml.classification import DecisionTreeClassifier
 
 
 def train_data(full_data, module_code, indexing_feature_cols, non_indexing_feature_cols, indexer_str):
-    module_data = full_data.filter("code_module == " + module_code)
+    module_data = full_data.filter("code_module == '%s'" % module_code)
 
     for feature in indexing_feature_cols:
         module_data = StringIndexer(inputCol=feature, outputCol=feature + indexer_str) \
@@ -24,7 +24,7 @@ def train_data(full_data, module_code, indexing_feature_cols, non_indexing_featu
     # disability: {0: 'N', 1: 'Y'}
     # final_result: {0: 'Pass', 1: 'Withdrawn', 2: 'Fail', 3: 'Distinction'}
 
-    feature_cols = indexing_feature_cols + non_indexing_feature_cols
+    feature_cols = [feature + indexer_str for feature in indexing_feature_cols] + non_indexing_feature_cols
     assembler = VectorAssembler(inputCols=feature_cols, outputCol="features")
     module_data = assembler.transform(module_data)
     label_col = "final_result" + indexer_str

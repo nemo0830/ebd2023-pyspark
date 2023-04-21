@@ -60,9 +60,9 @@ disability_options = [
     {'label': 'Y', 'value': 1},
 ]
 
-final_result_options = [
-    {'label': 'Pass', 'value': 0},
-    {'label': 'Withdrawn', 'value': 1},
-    {'label': 'Fail', 'value': 2},
-    {'label': 'Distinction', 'value': 3},
-]
+final_result_options = {
+    0: 'Pass',
+    1: 'Withdrawn',
+    2: 'Fail',
+    3: 'Distinction'
+}
