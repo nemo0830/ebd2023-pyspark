@@ -35,17 +35,17 @@ for code in code_modules:
 
 # Init App
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
-Callbacks.register_callbacks(app, student_score_data, model_dic, final_result_options)
+Callbacks.register_callbacks(app, student_score_data, model_dic, final_result_options, result_style)
 app.layout = html.Div(
     [
-        html.H1("Dashboard on Student Engagement in an E-Learning System"),
+        html.H1("Dashboard on Student Engagement in an E-Learning System", style={'marginBottom': '20px'}),
         html.H2("Student Score Browser"),
         html.Div([
             html.Label('Top Or Bottom'),
-            dcc.Dropdown(id='top_or_bottom', options=top_or_bottom_options, value='top', style={'width': '50%'}),
+            dcc.Dropdown(id='top_or_bottom', options=top_or_bottom_options, value='top', style={'width': '40%'}),
             html.Label('Semester'),
-            dcc.Dropdown(id='semester', options=semester_options, value='2013J', style={'width': '50%'}),
-        ]),
+            dcc.Dropdown(id='semester', options=semester_options, value='2013J', style={'width': '40%'}),
+        ], style={'display': 'flex', 'flexDirection': 'row'}),
         html.Div([
             html.Label('Query num students:'),
             dcc.Input(id='input-param', type='number', value=0),
@@ -68,10 +68,12 @@ app.layout = html.Div(
             dcc.Dropdown(id='age_band',  options=age_band_options, style={'width': '50%'}),
             html.Label('Disability'),
             dcc.Dropdown(id='disability', options=disability_options, style={'width': '50%'}),
+            html.Label('Number of clicks:'),
+            dcc.Input(id='total_clicks', type='number', value=30)
         ]),
         html.Div([
             html.Button('Submit', id='submit-button-prediction', n_clicks=0),
-            html.Div(id='predicted_result')
+            html.Div(id='predicted_result', style={'color': 'green', 'fontSize': '30px'})
         ])
     ]
 )

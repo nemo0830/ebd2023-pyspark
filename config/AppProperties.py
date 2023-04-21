@@ -1,4 +1,4 @@
-title_font_size = 30
+prediction_font_size = '30px'
 
 top_or_bottom_options = [
     {'label': 'top', 'value': 'top'},
@@ -65,4 +65,11 @@ final_result_options = {
     1: 'Withdrawn',
     2: 'Fail',
     3: 'Distinction'
+}
+
+result_style = {
+    'Pass': {'color': 'green', 'fontSize': prediction_font_size},
+    'Distinction': {'color': 'green', 'fontSize': prediction_font_size},
+    'Withdrawn': {'color': 'yellow', 'fontSize': prediction_font_size},
+    'Fail': {'color': 'red', 'fontSize': prediction_font_size}
 }
