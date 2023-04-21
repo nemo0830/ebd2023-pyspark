@@ -1,7 +1,7 @@
 # Define database connection properties
 jdbcHost = "0.0.0.0"  # Cloud SQL Proxy listening address
 jdbcPort = "1234"
-jdbcDatabase = "mockdb"
+jdbcDatabase = "golddb"
 jdbcUsername = "postgres"
 jdbcPassword = "mock_pwd"
 
