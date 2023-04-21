@@ -2,6 +2,7 @@ from pyspark.sql import SparkSession
 from api import Callbacks
 from config.AppProperties import *
 from config.SparkConn import jdbcUrl, connectionProperties
+from model.DecisionTreeTrainer import train_data
 from transformer import StudentScoreTransformer, StudentInfoMLTransformer
 import dash
 from dash import html
@@ -28,34 +29,23 @@ non_indexing_feature_cols = ["total_click"]
 
 model_dic = {}
 for code in code_modules:
-    model = (training_data, code, indexing_feature_cols, non_indexing_feature_cols, indexer_str)
+    model = train_data(training_data, code, indexing_feature_cols, non_indexing_feature_cols, indexer_str)
     model_dic[code] = model
     print("Loaded ML model for " + code + " : " + model.__str__())
 
 # Init App
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
-Callbacks.register_callbacks(app, student_score_data)
+Callbacks.register_callbacks(app, student_score_data, model_dic, final_result_options, result_style)
 app.layout = html.Div(
     [
-        html.H1("Dashboard on Student Engagement in an E-Learning System"),
+        html.H1("Dashboard on Student Engagement in an E-Learning System", style={'marginBottom': '20px'}),
+        html.H2("Student Score Browser"),
         html.Div([
             html.Label('Top Or Bottom'),
-            dcc.Dropdown(
-                id='top_or_bottom',
-                options=top_or_bottom_options,
-                value='top',
-                style={'width': '50%'}
-            ),
-        ]),
-        html.Div([
+            dcc.Dropdown(id='top_or_bottom', options=top_or_bottom_options, value='top', style={'width': '40%'}),
             html.Label('Semester'),
-            dcc.Dropdown(
-                id='semester',
-                options=semester_options,
-                value='2013J',
-                style={'width': '50%'}
-            ),
-        ]),
+            dcc.Dropdown(id='semester', options=semester_options, value='2013J', style={'width': '40%'}),
+        ], style={'display': 'flex', 'flexDirection': 'row'}),
         html.Div([
             html.Label('Query num students:'),
             dcc.Input(id='input-param', type='number', value=0),
@@ -63,6 +53,27 @@ app.layout = html.Div(
         ]),
         html.Div([
             dcc.Graph(id='student-score-plot')
+        ]),
+        html.H2("Student Exam Result Predictor"),
+        html.Div([
+            html.Label('Course to Predict'),
+            dcc.Dropdown(id='course_to_predict', options=course_options, value='AAA', style={'width': '50%'}),
+            html.Label('Gender'),
+            dcc.Dropdown(id='gender', options=gender_options, style={'width': '50%'}),
+            html.Label('Highest Education'),
+            dcc.Dropdown(id='highest_education', options=highest_education_options, style={'width': '50%'}),
+            html.Label('IMD Band'),
+            dcc.Dropdown(id='imd_band', options=imd_band_options, style={'width': '50%'}),
+            html.Label('Age Band'),
+            dcc.Dropdown(id='age_band',  options=age_band_options, style={'width': '50%'}),
+            html.Label('Disability'),
+            dcc.Dropdown(id='disability', options=disability_options, style={'width': '50%'}),
+            html.Label('Number of clicks:'),
+            dcc.Input(id='total_clicks', type='number', value=30)
+        ]),
+        html.Div([
+            html.Button('Submit', id='submit-button-prediction', n_clicks=0),
+            html.Div(id='predicted_result', style={'color': 'green', 'fontSize': '30px'})
         ])
     ]
 )
