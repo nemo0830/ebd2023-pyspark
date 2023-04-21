@@ -38,23 +38,12 @@ Callbacks.register_callbacks(app, student_score_data)
 app.layout = html.Div(
     [
         html.H1("Dashboard on Student Engagement in an E-Learning System"),
+        html.H2("Student Score Browser"),
         html.Div([
             html.Label('Top Or Bottom'),
-            dcc.Dropdown(
-                id='top_or_bottom',
-                options=top_or_bottom_options,
-                value='top',
-                style={'width': '50%'}
-            ),
-        ]),
-        html.Div([
+            dcc.Dropdown(id='top_or_bottom', options=top_or_bottom_options, value='top', style={'width': '50%'}),
             html.Label('Semester'),
-            dcc.Dropdown(
-                id='semester',
-                options=semester_options,
-                value='2013J',
-                style={'width': '50%'}
-            ),
+            dcc.Dropdown(id='semester', options=semester_options, value='2013J', style={'width': '50%'}),
         ]),
         html.Div([
             html.Label('Query num students:'),
@@ -63,6 +52,25 @@ app.layout = html.Div(
         ]),
         html.Div([
             dcc.Graph(id='student-score-plot')
+        ]),
+        html.H2("Student Exam Result Predictor"),
+        html.Div([
+            html.Label('Course to Predict'),
+            dcc.Dropdown(id='course_to_predict', options=course_options, value='AAA', style={'width': '50%'}),
+            html.Label('Gender'),
+            dcc.Dropdown(id='gender', options=gender_options, style={'width': '50%'}),
+            html.Label('Highest Education'),
+            dcc.Dropdown(id='highest_education', options=highest_education_options, style={'width': '50%'}),
+            html.Label('IMD Band'),
+            dcc.Dropdown(id='imd_band', options=imd_band_options, style={'width': '50%'}),
+            html.Label('Age Band'),
+            dcc.Dropdown(id='age_band',  options=age_band_options, style={'width': '50%'}),
+            html.Label('Disability'),
+            dcc.Dropdown(id='disability', options=disability_options, style={'width': '50%'}),
+        ]),
+        html.Div([
+            html.Button('Submit', id='submit-button-prediction', n_clicks=0),
+            html.Div(id='predicted_result')
         ])
     ]
 )

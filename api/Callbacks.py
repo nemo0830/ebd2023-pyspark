@@ -23,3 +23,15 @@ def register_callbacks(app, student_score_data):
                      title=top_or_bottom + " " + str(input_param) + " students and their scores in semester " + semester) \
             .update_layout(title_font_size=title_font_size)
         return fig
+
+
+    @app.callback(Output('predicted_result', 'children'),
+                  Input('submit-button-prediction', 'n_clicks'),
+                  Input('course_to_predict', 'value'),
+                  Input('gender', 'value'),
+                  Input('highest_education', 'value'),
+                  Input('imd_band', 'value'),
+                  Input('age_band', 'value'),
+                  Input('disability', 'value'),)
+    def update_prediction(n_clicks, course_to_predict, gender, highest_education, imd_band, age_band, disability):
+        return str(course_to_predict) + str(gender) + str(highest_education) + str(imd_band) + str(age_band) + str(disability)
