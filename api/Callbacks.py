@@ -1,18 +1,18 @@
 from dash.dependencies import Input, Output, State
 from pyspark.sql import SparkSession
 from pyspark.ml.feature import VectorAssembler
-from pyspark.sql.functions import col
+from pyspark.sql.functions import col, count
 import plotly.express as px
 import os
 
-def register_callbacks(app, student_score_data, model_dic, final_result_options, result_style):
+def register_callbacks(app, student_score_data, model_dic, final_result_options, result_style, student_info_data):
 
     @app.callback(
-        Output('student-score-plot', 'figure'),
-        State('top_or_bottom', 'value'),
-        State('semester', 'value'),
-        Input('submit-button', 'n_clicks'),
-        State('input-param', 'value'),
+        Output(component_id='student-score-plot', component_property='figure'),
+        State(component_id='top_or_bottom', component_property='value'),
+        State(component_id='semester', component_property='value'),
+        Input(component_id='submit-button', component_property='n_clicks'),
+        State(component_id='input-param', component_property='value'),
     )
     def update_top_x_score(top_or_bottom, semester, n_clicks, input_param, df=student_score_data):
         df = df[df['code_presentation'] == semester]
@@ -28,16 +28,16 @@ def register_callbacks(app, student_score_data, model_dic, final_result_options,
         return fig
 
 
-    @app.callback(Output('predicted_result', 'children'),
-                  Output('predicted_result', 'style'),
-                  Input('submit-button-prediction', 'n_clicks'),
-                  State('course_to_predict', 'value'),
-                  State('gender', 'value'),
-                  State('highest_education', 'value'),
-                  State('imd_band', 'value'),
-                  State('age_band', 'value'),
-                  State('disability', 'value'),
-                  State('total_clicks', 'value')
+    @app.callback(Output(component_id='predicted_result', component_property='children'),
+                  Output(component_id='predicted_result', component_property='style'),
+                  Input(component_id='submit-button-prediction', component_property='n_clicks'),
+                  State(component_id='course_to_predict', component_property='value'),
+                  State(component_id='gender', component_property='value'),
+                  State(component_id='highest_education', component_property='value'),
+                  State(component_id='imd_band', component_property='value'),
+                  State(component_id='age_band', component_property='value'),
+                  State(component_id='disability', component_property='value'),
+                  State(component_id='total_clicks', component_property='value')
   )
     def update_prediction(n_clicks, course_to_predict, gender, highest_education, imd_band, age_band, disability, total_clicks, ml_map=model_dic, result_map=final_result_options, result_style_map=result_style):
         os.environ["PYSPARK_PYTHON"] = "C:Users\siyuan\AppData\Local\Programs\Python\Python38\python.exe"
@@ -54,3 +54,58 @@ def register_callbacks(app, student_score_data, model_dic, final_result_options,
             result = result_map[int(predictions.select(col("prediction")).collect()[0]["prediction"])]
             return result, result_style_map[result]
         return 'Unknown', {'color': 'grey', 'fontSize': '30px'}
+
+    @app.callback(
+        Output(component_id='gender_piechart', component_property='figure'),
+        Input(component_id='semester-piechart', component_property='value'))
+    def update_gender_pie_chart(semester, df=student_info_data):
+        df = df.filter("code_presentation == '%s'" % semester)\
+                        .groupBy(["gender"]) \
+                        .agg(count(col("id_student")).alias('total_num'))\
+                        .toPandas()
+
+        return px.pie(data_frame=df, values='total_num', names='gender', title='Gender Distribution')
+
+    @app.callback(
+        Output(component_id='highest_education_piechart', component_property='figure'),
+        Input(component_id='semester-piechart', component_property='value'))
+    def update_highest_education_pie_chart(semester, df=student_info_data):
+        df = df.filter("code_presentation == '%s'" % semester) \
+            .groupBy(["highest_education"]) \
+            .agg(count(col("id_student")).alias('total_num')) \
+            .toPandas()
+
+        return px.pie(data_frame=df, values='total_num', names='highest_education', title='Highest Education Distribution')
+
+    @app.callback(
+        Output(component_id='imd_band_piechart', component_property='figure'),
+        Input(component_id='semester-piechart', component_property='value'))
+    def update_imd_band_pie_chart(semester, df=student_info_data):
+        df = df.filter("code_presentation == '%s'" % semester) \
+            .groupBy(["imd_band"]) \
+            .agg(count(col("id_student")).alias('total_num')) \
+            .toPandas()
+
+        return px.pie(data_frame=df, values='total_num', names='imd_band', title='IMD Band Distribution')
+
+    @app.callback(
+        Output(component_id='age_band_piechart', component_property='figure'),
+        Input(component_id='semester-piechart', component_property='value'))
+    def update_age_band_pie_chart(semester, df=student_info_data):
+        df = df.filter("code_presentation == '%s'" % semester) \
+            .groupBy(["age_band"]) \
+            .agg(count(col("id_student")).alias('total_num')) \
+            .toPandas()
+
+        return px.pie(data_frame=df, values='total_num', names='age_band', title='Age Band Distribution')
+
+    @app.callback(
+        Output(component_id='disability_piechart', component_property='figure'),
+        Input(component_id='semester-piechart', component_property='value'))
+    def update_disability_pie_chart(semester, df=student_info_data):
+        df = df.filter("code_presentation == '%s'" % semester) \
+            .groupBy(["disability"]) \
+            .agg(count(col("id_student")).alias('total_num')) \
+            .toPandas()
+
+        return px.pie(data_frame=df, values='total_num', names='disability', title='Disability Distribution')
