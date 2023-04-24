@@ -20,7 +20,7 @@ spark = SparkSession.builder \
 
 # Init Data
 student_score_data = StudentScoreTransformer.StudentScoreTransformer().read_table_and_transform(spark, jdbcUrl, connectionProperties)
-training_data = StudentInfoMLTransformer.StudentInfoMLTransformer().read_table_and_transform(spark, jdbcUrl, connectionProperties)
+student_info_data = StudentInfoMLTransformer.StudentInfoMLTransformer().read_table_and_transform(spark, jdbcUrl, connectionProperties)
 
 # Init Model Training
 indexer_str = "_idx"
@@ -29,13 +29,13 @@ non_indexing_feature_cols = ["total_click"]
 
 model_dic = {}
 for code in code_modules:
-    model = train_data(training_data, code, indexing_feature_cols, non_indexing_feature_cols, indexer_str)
+    model = train_data(student_info_data, code, indexing_feature_cols, non_indexing_feature_cols, indexer_str)
     model_dic[code] = model
     print("Loaded ML model for " + code + " : " + model.__str__())
 
 # Init App
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
-Callbacks.register_callbacks(app, student_score_data, model_dic, final_result_options, result_style)
+Callbacks.register_callbacks(app, student_score_data, model_dic, final_result_options, result_style, student_info_data)
 app.layout = html.Div(
     [
         html.H1("Dashboard on Student Engagement in an E-Learning System", style={'marginBottom': '20px'}),
@@ -53,6 +53,21 @@ app.layout = html.Div(
         ]),
         html.Div([
             dcc.Graph(id='student-score-plot')
+        ]),
+        html.H2("Student Profile Quick View"),
+        html.Div([
+            dcc.Dropdown(id='semester-piechart', options=semester_options, value='2013J', style={'width': '50%'}),
+            html.Div([
+                dcc.Graph(id='gender_piechart'),
+                dcc.Graph(id='age_band_piechart'),
+            ], style={'display': 'flex', 'flex-direction': 'row'}),
+            html.Div([
+                dcc.Graph(id='imd_band_piechart'),
+                dcc.Graph(id='highest_education_piechart')
+            ], style={'display': 'flex', 'flex-direction': 'row'}),
+            html.Div([
+                dcc.Graph(id='disability_piechart')
+            ])
         ]),
         html.H2("Student Exam Result Predictor"),
         html.Div([
