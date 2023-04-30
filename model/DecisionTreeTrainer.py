@@ -1,20 +1,12 @@
-from pyspark.ml.feature import VectorAssembler, StringIndexer
+from pyspark.ml.feature import VectorAssembler
 from pyspark.ml.classification import DecisionTreeClassifier
+
+from transformer import StudentInfoMLTransformer
 
 
 def train_data(full_data, module_code, indexing_feature_cols, non_indexing_feature_cols, indexer_str):
-    module_data = full_data.filter("code_module == '%s'" % module_code)
-
-    for feature in indexing_feature_cols:
-        module_data = StringIndexer(inputCol=feature, outputCol=feature + indexer_str) \
-            .setHandleInvalid("skip") \
-            .fit(module_data) \
-            .transform(module_data)
-
-    module_data = StringIndexer(inputCol="final_result", outputCol="final_result" + indexer_str) \
-        .setHandleInvalid("skip") \
-        .fit(module_data) \
-        .transform(module_data)
+    module_data = full_data.filter("code_module = '%s'" % module_code)
+    module_data = StudentInfoMLTransformer.StudentInfoMLTransformer().one_hot_encoding(module_data, indexing_feature_cols, indexer_str)
 
     # Data Dictionary after indexing
     # gender: {0: 'M', 1: 'F'}

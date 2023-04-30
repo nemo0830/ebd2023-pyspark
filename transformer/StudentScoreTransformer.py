@@ -19,6 +19,6 @@ class StudentScoreTransformer:
             .dropna() \
             .select(col("id_student").cast("varchar(20)"), col("weighted_score"), col("code_presentation")) \
             .sort(desc("weighted_score")) \
-            .toPandas()
+            .filter("weighted_score != %s" % 0.0)
 
-        return processed_data[processed_data.weighted_score != 0.0]
+        return processed_data

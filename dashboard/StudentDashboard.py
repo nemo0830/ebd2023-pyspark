@@ -1,7 +1,7 @@
 from pyspark.sql import SparkSession
 from api import Callbacks
 from config.AppProperties import *
-from config.SparkConn import jdbcUrl, connectionProperties
+from config.SparkConn import jdbcGoldUrl, connectionProperties
 from model.DecisionTreeTrainer import train_data
 from transformer import StudentScoreTransformer, StudentInfoMLTransformer
 import dash
@@ -19,14 +19,10 @@ spark = SparkSession.builder \
     .master("local").getOrCreate()
 
 # Init Data
-student_score_data = StudentScoreTransformer.StudentScoreTransformer().read_table_and_transform(spark, jdbcUrl, connectionProperties)
-student_info_data = StudentInfoMLTransformer.StudentInfoMLTransformer().read_table_and_transform(spark, jdbcUrl, connectionProperties)
+student_score_data = StudentScoreTransformer.StudentScoreTransformer().read_table_and_transform(spark, jdbcGoldUrl, connectionProperties).toPandas()
+student_info_data = StudentInfoMLTransformer.StudentInfoMLTransformer().read_table_and_transform(spark, jdbcGoldUrl, connectionProperties)
 
 # Init Model Training
-indexer_str = "_idx"
-indexing_feature_cols = ["gender", "highest_education", "imd_band", "age_band", "disability"]
-non_indexing_feature_cols = ["total_click"]
-
 model_dic = {}
 for code in code_modules:
     model = train_data(student_info_data, code, indexing_feature_cols, non_indexing_feature_cols, indexer_str)
