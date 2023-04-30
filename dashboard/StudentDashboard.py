@@ -23,10 +23,6 @@ student_score_data = StudentScoreTransformer.StudentScoreTransformer().read_tabl
 student_info_data = StudentInfoMLTransformer.StudentInfoMLTransformer().read_table_and_transform(spark, jdbcGoldUrl, connectionProperties)
 
 # Init Model Training
-indexer_str = "_idx"
-indexing_feature_cols = ["gender", "highest_education", "imd_band", "age_band", "disability"]
-non_indexing_feature_cols = ["total_click"]
-
 model_dic = {}
 for code in code_modules:
     model = train_data(student_info_data, code, indexing_feature_cols, non_indexing_feature_cols, indexer_str)

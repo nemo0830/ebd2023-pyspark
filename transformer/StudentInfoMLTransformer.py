@@ -1,3 +1,4 @@
+from pyspark.ml.feature import StringIndexer
 from pyspark.sql.functions import col, sum
 
 class StudentInfoMLTransformer:
@@ -22,3 +23,16 @@ class StudentInfoMLTransformer:
                         , col("disability")
                         , col("total_click")
                         , col("final_result"))
+
+    def one_hot_encoding(self, data, indexing_feature_cols, indexer_str):
+
+        for feature in indexing_feature_cols:
+            data = StringIndexer(inputCol=feature, outputCol=feature + indexer_str) \
+                .setHandleInvalid("skip") \
+                .fit(data) \
+                .transform(data)
+
+        return StringIndexer(inputCol="final_result", outputCol="final_result" + indexer_str) \
+            .setHandleInvalid("skip") \
+            .fit(data) \
+            .transform(data)

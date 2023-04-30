@@ -73,3 +73,7 @@ result_style = {
     'Withdrawn': {'color': 'yellow', 'fontSize': prediction_font_size},
     'Fail': {'color': 'red', 'fontSize': prediction_font_size}
 }
+
+indexer_str = "_idx"
+indexing_feature_cols = ["gender", "highest_education", "imd_band", "age_band", "disability"]
+non_indexing_feature_cols = ["total_click"]
