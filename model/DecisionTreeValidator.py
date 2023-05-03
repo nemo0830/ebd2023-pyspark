@@ -14,6 +14,8 @@ training_df, testing_df = student_info_data.filter("code_module = '%s'" % module
     .randomSplit([0.7, 0.3], seed=666)
 model = train_data(training_df, module_code, indexing_feature_cols, non_indexing_feature_cols, indexer_str)
 
+print(model.toDebugString)
+
 # Fit model
 testing_df = StudentInfoMLTransformer.StudentInfoMLTransformer().one_hot_encoding(testing_df, indexing_feature_cols, indexer_str)
 feature_cols = [feature + indexer_str for feature in indexing_feature_cols] + non_indexing_feature_cols
