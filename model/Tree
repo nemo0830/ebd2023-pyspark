@@ -1,0 +1,26 @@
+                feature 5 <= 490.0
+                /             \
+  feature 5 <= 263.5         feature 5 > 263.5
+  /              \          /                \
+feature 0 in {0.0}  feature 0 not in {0.0}   feature 2 in {1.0,2.0,3.0,4.0,5.0,6.0,7.0,9.0}
+/          \                 /                             /                            \
+feature 2 in {0.0} feature 2 not in {0.0}        feature 2 in {1.0,2.0,6.0,9.0}   feature 2 not in {1.0,2.0,3.0,4.0,5.0,6.0,7.0,9.0}
+/               \               /                        /                                              \
+feature 5 <= 187.5  feature 5 > 187.5       feature 4 in {0.0}                                  feature 3 in {0.0}
+                 Predict: 0.0               Predict: 1.0                                           /          \
+                                                    /                                feature 1 in {0.0}  feature 1 not in {0.0}
+                                          feature 4 not in {0.0}                                        Predict: 0.0           Predict: 2.0
+                                                    /          \
+                                                   Predict: 1.0  Predict: 2.0
+
+
+                feature 5 > 490.0
+                /             \
+  feature 5 <= 1066.5         feature 5 > 1066.5
+  /               \           /                \
+feature 0 in {0.0}  feature 0 not in {0.0}   feature 2 in {1.0,2.0,3.0,4.0,8.0,9.0}
+/               \               /                            \
+feature 2 in {2.0,4.0,6.0,7.0,9.0} feature 2 not in {2.0,4.0,6.0,7.0,9.0}      Predict: 0.0
+/               \                /                                \
+feature 4 in {0.0}  feature 4 not in {0.0}                feature 1 in {0.0}  feature 1 not in {0.0}
+             Predict: 0.0                  Predict: 1.0                       Predict: 0.0              Predict: 2.0
