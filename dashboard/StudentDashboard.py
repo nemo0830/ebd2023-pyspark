@@ -9,6 +9,10 @@ from dash import html
 from dash import dcc
 import dash_bootstrap_components as dbc
 import os
+import pandas as pd
+from legacy.LegacyQuery import *
+from legacy.LegacyConn import *
+from legacy import LegacyCallbacks
 
 os.environ["PYSPARK_PYTHON"] = "C:Users\siyuan\AppData\Local\Programs\Python\Python38\python.exe"
 
@@ -29,9 +33,35 @@ for code in code_modules:
     model_dic[code] = model
     print("Loaded ML model for " + code + " : " + model.__str__())
 
+#Loading legacy componet
+print("Loading legacy plot...")
+
+dfPie = pd.read_sql(pieQuery, dbConnection)
+
+dfRegionLine = pd.read_sql(regionLineQuery, dbConnection)
+dfAgeBandLine = pd.read_sql(ageBandLineQuery, dbConnection)
+dfHighestEduLine = pd.read_sql(HighestEducationLineQuery, dbConnection)
+dfFinalResultLine = pd.read_sql(finalResultLineQuery, dbConnection)
+dfGenderLine = pd.read_sql(genderLineQuery, dbConnection)
+
+dfGenderBar = pd.read_sql(GenderBarQuery, dbConnection)
+dfRegionBar = pd.read_sql(RegionBarQuery, dbConnection)
+dfAgeBandBar = pd.read_sql(AgeBandBarQuery, dbConnection)
+dfFinalResultBar = pd.read_sql(FinalResultBarQuery, dbConnection)
+dfHighestEduBar = pd.read_sql(HighestEduBarQuery, dbConnection)
+
+dfGenderScatter = pd.read_sql(GenderScatterQuery, dbConnection)
+dfRegionScatter = pd.read_sql(RegionScatterQuery, dbConnection)
+dfAgeBandScatter = pd.read_sql(AgeBandScatterQuery, dbConnection)
+dfFinalResultScatter = pd.read_sql(FinalResultScatterQuery, dbConnection)
+dfHighestEduScatter = pd.read_sql(HighestEduScatterQuery, dbConnection)
+
 # Init App
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
-Callbacks.register_callbacks(app, student_score_data, model_dic, final_result_options, result_style, student_info_data)
+Callbacks.register_callbacks(app, student_score_data, model_dic, final_result_options, result_style)
+LegacyCallbacks.register_callbacks(app, dfPie, dfRegionLine, dfAgeBandLine, dfHighestEduLine, dfFinalResultLine, dfGenderLine,
+                                   dfRegionBar, dfAgeBandBar, dfHighestEduBar, dfFinalResultBar, dfGenderBar,
+                                   dfRegionScatter, dfAgeBandScatter, dfHighestEduScatter, dfFinalResultScatter, dfGenderScatter)
 app.layout = html.Div(
     [
         html.H1("Dashboard on Student Engagement in an E-Learning System", style={'marginBottom': '20px'}),
@@ -50,21 +80,53 @@ app.layout = html.Div(
         html.Div([
             dcc.Graph(id='student-score-plot')
         ]),
-        html.H2("Student Profile Quick View"),
-        html.Div([
-            dcc.Dropdown(id='semester-piechart', options=semester_options, value='2013J', style={'width': '50%'}),
-            html.Div([
-                dcc.Graph(id='gender_piechart'),
-                dcc.Graph(id='age_band_piechart'),
-            ], style={'display': 'flex', 'flex-direction': 'row'}),
-            html.Div([
-                dcc.Graph(id='imd_band_piechart'),
-                dcc.Graph(id='highest_education_piechart')
-            ], style={'display': 'flex', 'flex-direction': 'row'}),
-            html.Div([
-                dcc.Graph(id='disability_piechart')
-            ])
+        html.H2("Student Info Plots"),
+        dbc.Row([
+            dbc.Col(dcc.Dropdown(
+                id='my_dropdown',
+                options=[
+                    {'label': 'Gender', 'value': 'gender'},
+                    {'label': 'Region', 'value': 'region'},
+                    {'label': 'Highest Education', 'value': 'highest_education'},
+                    {'label': 'Age Band', 'value': 'age_band'},
+                    {'label': 'Final Result', 'value': 'final_result'}
+                ],
+                value='region',
+                multi=False,
+                clearable=False,
+            ), width=3),
+            dbc.Col(dcc.Dropdown(
+                dfRegionLine['code_presentation_description'].unique(),
+                dfRegionLine['code_presentation_description'].iloc[0],
+                id='my_dropdown2',
+                multi=False,
+                clearable=False,
+            ), width=3,)
         ]),
+        dbc.Row([
+            dbc.Col(html.Label(['Filter By Student Demographics :']), width=3),
+            dbc.Col(html.Label(['Filter By Course Semester :']), width=3)
+        ], style={'position':'sticky','top':0}),
+        dbc.Row([
+            dbc.Col(dcc.Graph(id='sunBurst')),
+            dbc.Col(dcc.Graph(id='pieChart'))
+        ]),
+        dbc.Row([
+            dbc.Col(dcc.Graph(id='sunBurst2')),
+            dbc.Col(dcc.Graph(id='pieChart2'))
+        ]),
+        dbc.Row(html.Div([
+            dcc.Graph(id='histogram')
+        ])),
+        dbc.Row(html.Div([
+            dcc.Graph(id='barChart')
+        ])),
+        dbc.Row(html.Div([
+            dcc.Graph(id='scatterChartOverView')
+        ])),
+        dbc.Row(html.Div([
+            dcc.Graph(id='scatterChart')
+        ])),
         html.H2("Student Exam Result Predictor"),
         html.Div([
             html.Label('Course to Predict'),

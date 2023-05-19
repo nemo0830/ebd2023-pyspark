@@ -1,3 +1,5 @@
+title_font_size = 15
+
 prediction_font_size = '30px'
 
 top_or_bottom_options = [
