@@ -59,7 +59,9 @@ dfHighestEduScatter = pd.read_sql(HighestEduScatterQuery, dbConnection)
 # Init App
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 Callbacks.register_callbacks(app, student_score_data, model_dic, final_result_options, result_style)
-LegacyCallbacks.register_callbacks(app, dfPie)
+LegacyCallbacks.register_callbacks(app, dfPie, dfRegionLine, dfAgeBandLine, dfHighestEduLine, dfFinalResultLine, dfGenderLine,
+                                   dfRegionBar, dfAgeBandBar, dfHighestEduBar, dfFinalResultBar, dfGenderBar,
+                                   dfRegionScatter, dfAgeBandScatter, dfHighestEduScatter, dfFinalResultScatter, dfGenderScatter)
 app.layout = html.Div(
     [
         html.H1("Dashboard on Student Engagement in an E-Learning System", style={'marginBottom': '20px'}),
@@ -78,6 +80,7 @@ app.layout = html.Div(
         html.Div([
             dcc.Graph(id='student-score-plot')
         ]),
+        html.H2("Student Info Plots"),
         dbc.Row([
             dbc.Col(dcc.Dropdown(
                 id='my_dropdown',
@@ -101,9 +104,29 @@ app.layout = html.Div(
             ), width=3,)
         ]),
         dbc.Row([
+            dbc.Col(html.Label(['Filter By Student Demographics :']), width=3),
+            dbc.Col(html.Label(['Filter By Course Semester :']), width=3)
+        ], style={'position':'sticky','top':0}),
+        dbc.Row([
             dbc.Col(dcc.Graph(id='sunBurst')),
             dbc.Col(dcc.Graph(id='pieChart'))
         ]),
+        dbc.Row([
+            dbc.Col(dcc.Graph(id='sunBurst2')),
+            dbc.Col(dcc.Graph(id='pieChart2'))
+        ]),
+        dbc.Row(html.Div([
+            dcc.Graph(id='histogram')
+        ])),
+        dbc.Row(html.Div([
+            dcc.Graph(id='barChart')
+        ])),
+        dbc.Row(html.Div([
+            dcc.Graph(id='scatterChartOverView')
+        ])),
+        dbc.Row(html.Div([
+            dcc.Graph(id='scatterChart')
+        ])),
         html.H2("Student Exam Result Predictor"),
         html.Div([
             html.Label('Course to Predict'),
