@@ -1,11 +1,11 @@
 from dash.dependencies import Input, Output, State
 from pyspark.sql import SparkSession
 from pyspark.ml.feature import VectorAssembler
-from pyspark.sql.functions import col, count
+from pyspark.sql.functions import col
 import plotly.express as px
 import os
 
-def register_callbacks(app, student_score_data, model_dic, final_result_options, result_style, student_info_data):
+def register_callbacks(app, student_score_data, model_dic, final_result_options, result_style):
 
     @app.callback(
         Output(component_id='student-score-plot', component_property='figure'),
@@ -54,58 +54,3 @@ def register_callbacks(app, student_score_data, model_dic, final_result_options,
             result = result_map[int(predictions.select(col("prediction")).collect()[0]["prediction"])]
             return result, result_style_map[result]
         return 'Unknown', {'color': 'grey', 'fontSize': '30px'}
-
-    @app.callback(
-        Output(component_id='gender_piechart', component_property='figure'),
-        Input(component_id='semester-piechart', component_property='value'))
-    def update_gender_pie_chart(semester, df=student_info_data):
-        df = df.filter("code_presentation == '%s'" % semester)\
-                        .groupBy(["gender"]) \
-                        .agg(count(col("id_student")).alias('total_num'))\
-                        .toPandas()
-
-        return px.pie(data_frame=df, values='total_num', names='gender', title='Gender Distribution')
-
-    @app.callback(
-        Output(component_id='highest_education_piechart', component_property='figure'),
-        Input(component_id='semester-piechart', component_property='value'))
-    def update_highest_education_pie_chart(semester, df=student_info_data):
-        df = df.filter("code_presentation == '%s'" % semester) \
-            .groupBy(["highest_education"]) \
-            .agg(count(col("id_student")).alias('total_num')) \
-            .toPandas()
-
-        return px.pie(data_frame=df, values='total_num', names='highest_education', title='Highest Education Distribution')
-
-    @app.callback(
-        Output(component_id='imd_band_piechart', component_property='figure'),
-        Input(component_id='semester-piechart', component_property='value'))
-    def update_imd_band_pie_chart(semester, df=student_info_data):
-        df = df.filter("code_presentation == '%s'" % semester) \
-            .groupBy(["imd_band"]) \
-            .agg(count(col("id_student")).alias('total_num')) \
-            .toPandas()
-
-        return px.pie(data_frame=df, values='total_num', names='imd_band', title='IMD Band Distribution')
-
-    @app.callback(
-        Output(component_id='age_band_piechart', component_property='figure'),
-        Input(component_id='semester-piechart', component_property='value'))
-    def update_age_band_pie_chart(semester, df=student_info_data):
-        df = df.filter("code_presentation == '%s'" % semester) \
-            .groupBy(["age_band"]) \
-            .agg(count(col("id_student")).alias('total_num')) \
-            .toPandas()
-
-        return px.pie(data_frame=df, values='total_num', names='age_band', title='Age Band Distribution')
-
-    @app.callback(
-        Output(component_id='disability_piechart', component_property='figure'),
-        Input(component_id='semester-piechart', component_property='value'))
-    def update_disability_pie_chart(semester, df=student_info_data):
-        df = df.filter("code_presentation == '%s'" % semester) \
-            .groupBy(["disability"]) \
-            .agg(count(col("id_student")).alias('total_num')) \
-            .toPandas()
-
-        return px.pie(data_frame=df, values='total_num', names='disability', title='Disability Distribution')

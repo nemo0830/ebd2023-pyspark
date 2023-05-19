@@ -30,8 +30,6 @@ alchemyEngine = create_engine(
     creator=getconn,
 )
 
-#local host connection
-#alchemyEngine = create_engine("postgresql+psycopg2://postgres:Ruiyun@localhost:5432/postgres")
 
 dbConnection = alchemyEngine.connect()
 
